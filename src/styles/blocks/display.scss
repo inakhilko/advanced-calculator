@@ -1,0 +1,37 @@
+.calculator__panel {
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px;
+
+  border: 1px solid grey;
+  border-radius: 15px 15px 0 0;
+
+  &-display {
+    padding: 8px 4px;
+    border: none;
+
+    text-align: right;
+    font-size: 42px;
+
+    @media (max-width: 560px) {
+      font-size: 26px;
+    }
+  }
+}
+
+.dark-theme {
+  .calculator__panel-display {
+    color: #fff;
+
+    background-color: #494747;
+  }
+}
+
+.light-theme {
+  .calculator__panel-display {
+    color: #000;
+
+    background-color: #fff;
+  }
+}
