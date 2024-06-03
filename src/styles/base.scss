@@ -34,11 +34,18 @@ button {
   background-color: #fff;
 }
 
-.theme-button {
+.button {
+  display: flex;
+
   padding: 10px 15px;
 
   border: 1px solid grey;
   border-radius: 20px;
+}
+
+.general-buttons-block {
+  display: flex;
+  gap: 20px;
 }
 
 .calculator {
@@ -52,7 +59,7 @@ button {
 }
 
 .dark-theme {
-  .theme-button {
+  .button {
     color: #fff;
 
     background-color: #8d8b8b;
