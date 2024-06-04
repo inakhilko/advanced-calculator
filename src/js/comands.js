@@ -72,9 +72,8 @@ export class ChangeSignCommand {
     return -currentValue;
   }
 
-  undo() {
-    this.currentValue = -this.currentValue;
-    return this.currentValue;
+  undo(currentValue) {
+    return -currentValue;
   }
 }
 
@@ -147,10 +146,6 @@ export class RaiseTenToPower {
 }
 
 export class GetFactorial {
-  constructor(factorialBase) {
-    this.factorialBase = factorialBase;
-  }
-
   execute(currentValue) {
     let result = 1;
     for (let i = 1; i <= currentValue; i += 1) {
@@ -174,10 +169,16 @@ export class GetRoot {
   }
 
   execute(currentValue) {
+    if (currentValue < 0) {
+      return -((-currentValue) ** (1 / this.rootValue));
+    }
     return currentValue ** (1 / this.rootValue);
   }
 
   undo(currentValue) {
+    if (currentValue < 0) {
+      return -((-currentValue) ** this.rootValue);
+    }
     return currentValue ** this.rootValue;
   }
 }
@@ -188,11 +189,7 @@ export class GetOnePartOfX {
   }
 
   undo(currentValue) {
-    let result = 1;
-    for (let i = this.powerValue; i > 0; i -= 1) {
-      result /= currentValue;
-    }
-    return result;
+    return 1 / currentValue;
   }
 }
 

@@ -48,15 +48,19 @@ class CalculatorModel {
   }
 
   executeMemoryCommand(command) {
-    const a = command.execute(this.memory);
-    if (a) {
-      return a;
+    const memoryCommandResult = command.execute(this.memory);
+    if (memoryCommandResult || memoryCommandResult === 0) {
+      return memoryCommandResult;
     }
     return false;
   }
 
   undoLastCommand() {
-    return this.operationsHistory.pop().undo(this.currentValue);
+    if (this.operationsHistory.length === 0) {
+      return 0;
+    }
+    this.currentValue = this.operationsHistory.pop().undo(this.currentValue);
+    return this.currentValue;
   }
 
   chooseOperation(
@@ -65,55 +69,75 @@ class CalculatorModel {
     secondNumber,
     lastNumber
   ) {
-    switch (currentOperation) {
-      case '11':
-        this.clearPanel();
-        return this.executeCommandWithOneOperand(new ClearPanel());
-      case '12':
-        if (secondNumber === lastNumber) {
+    if (secondNumber === lastNumber) {
+      switch (currentOperation) {
+        case '11':
+          this.clearPanel();
+          return this.executeCommandWithTwoOperands(new ClearPanel());
+        case '12':
           return this.executeCommandWithOneOperand(
             new ChangeSignCommand(),
             lastNumber
           );
-        } 
-          return this.executeCommandWithTwoOperands(new ChangeSignCommand());
-        
+        case '21':
+          return this.executeCommandWithOneOperand(
+            new RaiseToSecondPower(),
+            lastNumber
+          );
+        case '23':
+          return this.executeCommandWithOneOperand(
+            new RaiseToThirdPower(),
+            lastNumber
+          );
+        case '28':
+          return this.executeCommandWithOneOperand(
+            new RaiseTenToPower(),
+            lastNumber
+          );
+        case '27':
+          return this.executeCommandWithOneOperand(
+            new GetFactorial(),
+            lastNumber
+          );
+        case '31':
+          return this.executeCommandWithOneOperand(
+            new GetOnePartOfX(),
+            lastNumber
+          );
+        case '20':
+          return this.executeCommandWithOneOperand(new GetRoot(2), lastNumber);
+        case '22':
+          return this.executeCommandWithOneOperand(new GetRoot(3), lastNumber);
+        default:
+          break;
+      }
+    }
+    switch (currentOperation) {
+      case '11':
+        this.clearPanel();
+        return this.executeCommandWithOneOperand(new ClearPanel());
+
+      case '12':
+        return this.executeCommandWithTwoOperands(new ChangeSignCommand());
 
       case '21':
-        return this.executeCommandWithOneOperand(
-          new RaiseToSecondPower(),
-          lastNumber
-        );
-
+        return this.executeCommandWithTwoOperands(new RaiseToSecondPower());
       case '23':
-        return this.executeCommandWithOneOperand(
-          new RaiseToThirdPower(),
-          lastNumber
-        );
-
+        return this.executeCommandWithTwoOperands(new RaiseToThirdPower());
       case '28':
-        return this.executeCommandWithOneOperand(
-          new RaiseTenToPower(),
-          lastNumber
-        );
+        return this.executeCommandWithTwoOperands(new RaiseTenToPower());
 
       case '27':
-        return this.executeCommandWithOneOperand(
-          new GetFactorial(),
-          lastNumber
-        );
+        return this.executeCommandWithTwoOperands(new GetFactorial());
 
       case '31':
-        return this.executeCommandWithOneOperand(
-          new GetOnePartOfX(),
-          lastNumber
-        );
+        return this.executeCommandWithTwoOperands(new GetOnePartOfX());
 
       case '20':
-        return this.executeCommandWithOneOperand(new GetRoot(2), lastNumber);
-
+        return this.executeCommandWithTwoOperands(new GetRoot(2));
       case '22':
-        return this.executeCommandWithOneOperand(new GetRoot(3), lastNumber);
+        return this.executeCommandWithTwoOperands(new GetRoot(3));
+
       case '30':
         this.executeMemoryCommand(new SaveToMemoryCommand(lastNumber));
         return false;
@@ -143,7 +167,7 @@ class CalculatorModel {
           this.executeCommandWithTwoOperands(new DivideCommand(secondNumber));
           break;
         case '=':
-          this.executeCommandWithTwoOperands(new EqualityCommand(secondNumber));
+          this.executeCommandWithTwoOperands(new EqualityCommand());
           break;
         case '%':
           this.executeCommandWithTwoOperands(
@@ -164,7 +188,7 @@ class CalculatorModel {
   }
 
   executeCurrentCommand(operation, panelValue) {
-    if (this.currentValue == null || this.currentValue === 0) {
+    if (panelValue.split(' ').length <= 2) {
       this.currentValue = Number(panelValue.split(' ')[0]);
     }
 
@@ -175,7 +199,7 @@ class CalculatorModel {
       Number(panelValue.split(' ')[panelValue.split(' ').length - 1])
     );
 
-    if (operationResult) {
+    if (operationResult || operationResult === 0) {
       this.isPanelToRewrite = true;
       return operationResult;
     }

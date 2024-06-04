@@ -45,7 +45,7 @@ class CalculatorView {
       { content: 'M+', id: 30 },
       { content: '1/x', id: 31 },
     ];
-    this.operationsToDisplay = ['÷', '×', '-', '+', '%'];
+    this.operationsToDisplay = ['14', '15', '16', '17', '13'];
     this.createElement = createElement;
     this.createKeypadBlock = createBlockWithButtons;
   }
@@ -100,11 +100,9 @@ class CalculatorView {
       this.keypadNumbersBlockContent,
       ['keypad__button', 'keypad__button--numbers']
     );
-    // this.keypadMainBlockNumbers = keypadMainBlockNumbers;
     keypadMainBlockNumbers.addEventListener('click', (event) =>
       this.onNumberButtonClick(event)
     );
-
     keypadMainBlock.append(keypadMainBlockOperations, keypadMainBlockNumbers);
 
     const keypadSideBlock = this.createKeypadBlock(
@@ -132,12 +130,15 @@ class CalculatorView {
     }
   }
 
-  onNumberButtonClick(event, isComplexOperation) {
-    if (this.panelDisplayElement.innerText === '0') {
+  onNumberButtonClick(event) {
+    if (
+      this.panelDisplayElement.innerText === '0' &&
+      event.target.innerHTML !== '.'
+    ) {
       this.panelDisplayElement.innerText = event.target.innerHTML;
       return;
     }
-    if (isComplexOperation) {
+    if (this.panelDisplayElement.innerText.split(' ').at(-1) === '0') {
       this.changeLastPanelNumber(event.target.innerHTML);
       return;
     }
@@ -145,25 +146,21 @@ class CalculatorView {
       this.panelDisplayElement.innerText.at(-1) !== '.' &&
       Number.isNaN(Number(this.panelDisplayElement.innerText.at(-1)))
     ) {
-      this.panelDisplayElement.innerText =
-        `${this.panelDisplayElement.innerText  } ${  event.target.innerHTML}`;
+      this.panelDisplayElement.innerText = `${this.panelDisplayElement.innerText} ${event.target.innerHTML}`;
     } else {
       this.panelDisplayElement.innerText += event.target.innerHTML;
     }
   }
 
-  displayOperation(operation) {
-    if (this.operationsToDisplay.includes(operation)) {
-      this.panelDisplayElement.innerHTML =
-        `${this.panelDisplayElement.innerHTML  } ${  operation}`;
+  displayOperation(operationElement) {
+    if (this.operationsToDisplay.includes(operationElement.id)) {
+      this.panelDisplayElement.innerHTML = `${this.panelDisplayElement.innerHTML} ${operationElement.innerHTML}`;
     }
-    if (operation === `x<sup>y</sup>`) {
-      this.panelDisplayElement.innerHTML =
-        `${this.panelDisplayElement.innerHTML  } ^`;
+    if (operationElement.id === '26') {
+      this.panelDisplayElement.innerHTML = `${this.panelDisplayElement.innerHTML} ^`;
     }
-    if (operation === `<sup>n</sup>√x`) {
-      this.panelDisplayElement.innerHTML =
-        `${this.panelDisplayElement.innerHTML  } √`;
+    if (operationElement.id === '25') {
+      this.panelDisplayElement.innerHTML = `${this.panelDisplayElement.innerHTML} √`;
     }
   }
 

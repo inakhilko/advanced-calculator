@@ -17,7 +17,7 @@ class CalculatorController {
     ) {
       return;
     }
-    this.view.displayOperation(event.target.innerHTML);
+    this.view.displayOperation(event.target);
 
     const newSecondNumber = this.model.executeCurrentCommand(
       event.target.id,
@@ -25,9 +25,6 @@ class CalculatorController {
     );
 
     if (this.model.isPanelToRewrite) {
-      // const a = this.view.panelDisplayElement.innerHTML.split(' ');
-      // a[a.length - 1] = newSecondNumber;
-      // this.view.panelDisplayElement.innerHTML = a.join(' ');
       this.view.changeLastPanelNumber(newSecondNumber);
       this.model.isPanelToRewrite = false;
       return;
@@ -36,7 +33,7 @@ class CalculatorController {
     this.view.panelDisplayElement.innerHTML = this.model.currentValue
       ? this.model.currentValue
       : 0;
-    this.view.displayOperation(event.target.innerHTML);
+    this.view.displayOperation(event.target);
   }
 
   renderCalculator() {
