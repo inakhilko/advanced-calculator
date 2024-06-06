@@ -93,7 +93,7 @@ class CalculatorModel {
     if (this.operationsHistory.length === 0) {
       return 0;
     }
-    this.currentValue = this.operationsHistory.pop().undo(this.currentValue).toFixed(12);
+    this.currentValue = +this.operationsHistory.pop().undo(this.currentValue).toFixed(12);
     return this.currentValue;
   }
 
