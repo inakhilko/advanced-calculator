@@ -5,8 +5,7 @@ class CalculatorController {
   }
 
   onReturnButtonClick() {
-    const returnOperationResult = this.model.undoLastCommand();
-    this.view.panelDisplayElement.innerHTML = returnOperationResult;
+    this.view.panelDisplayElement.innerHTML = this.model.undoLastCommand();
   }
 
   onOperationClick(event) {
@@ -17,15 +16,30 @@ class CalculatorController {
     ) {
       return;
     }
+    let isMemoryCommandDone= false;
+    switch (event.target.id) {
+      case '30':
+      case '29':
+      case '19':
+      case '24':
+        isMemoryCommandDone = this.model.chooseMemoryCommand(event.target.id, this.view.panelDisplayElement.innerHTML.split(' ').at(-1))
+        break
+      default:
+        break;
+    }
+    if (isMemoryCommandDone === true) {
+      return;
+    }
+
     this.view.displayOperation(event.target);
 
     const newSecondNumber = this.model.executeCurrentCommand(
       event.target.id,
-      this.view.panelDisplayElement.innerHTML
+      this.view.panelDisplayElement.innerHTML.split(' ')
     );
 
     if (this.model.isPanelToRewrite) {
-      this.view.changeLastPanelNumber(newSecondNumber);
+      this.view.changeLastPanelNumber(newSecondNumber || isMemoryCommandDone);
       this.model.isPanelToRewrite = false;
       return;
     }
@@ -34,6 +48,9 @@ class CalculatorController {
       ? this.model.currentValue
       : 0;
     this.view.displayOperation(event.target);
+    if(this.model.currentValue === "Error") {
+      this.model.clearPanel()
+    }
   }
 
   renderCalculator() {

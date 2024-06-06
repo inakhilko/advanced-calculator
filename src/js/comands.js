@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
 
-export class AddCommand {
+class AddCommand {
   constructor(valueToAdd) {
     this.valueToAdd = valueToAdd;
   }
@@ -15,7 +15,7 @@ export class AddCommand {
   }
 }
 
-export class SubtractCommand {
+class SubtractCommand {
   constructor(valueToSubtract) {
     this.valueToSubtract = valueToSubtract;
   }
@@ -29,7 +29,7 @@ export class SubtractCommand {
   }
 }
 
-export class MultiplyCommand {
+class MultiplyCommand {
   constructor(valueToMultiply) {
     this.valueToMultiply = valueToMultiply;
   }
@@ -43,12 +43,15 @@ export class MultiplyCommand {
   }
 }
 
-export class DivideCommand {
+class DivideCommand {
   constructor(valueToDivideBy) {
     this.valueToDivideBy = valueToDivideBy;
   }
 
   execute(currentValue) {
+    if (this.valueToDivideBy === 0) {
+      return 'Error';
+    }
     return currentValue / this.valueToDivideBy;
   }
 
@@ -57,7 +60,7 @@ export class DivideCommand {
   }
 }
 
-export class EqualityCommand {
+class EqualityCommand {
   execute(currentValue) {
     return currentValue;
   }
@@ -67,7 +70,7 @@ export class EqualityCommand {
   }
 }
 
-export class ChangeSignCommand {
+class ChangeSignCommand {
   execute(currentValue) {
     return -currentValue;
   }
@@ -77,7 +80,7 @@ export class ChangeSignCommand {
   }
 }
 
-export class PercentageCommand {
+class PercentageCommand {
   constructor(percentageValue) {
     this.percentageValue = percentageValue;
   }
@@ -91,7 +94,7 @@ export class PercentageCommand {
   }
 }
 
-export class ClearPanel {
+class ClearPanel {
   execute() {
     return 0;
   }
@@ -101,7 +104,7 @@ export class ClearPanel {
   }
 }
 
-export class RaiseToPower {
+class RaiseToPower {
   constructor(powerValue) {
     this.powerValue = powerValue;
   }
@@ -115,7 +118,7 @@ export class RaiseToPower {
   }
 }
 
-export class RaiseToSecondPower {
+class RaiseToSecondPower {
   execute(baseValue) {
     return new RaiseToPower(2).execute(baseValue);
   }
@@ -125,7 +128,7 @@ export class RaiseToSecondPower {
   }
 }
 
-export class RaiseToThirdPower {
+class RaiseToThirdPower {
   execute(baseValue) {
     return new RaiseToPower(3).execute(baseValue);
   }
@@ -135,7 +138,7 @@ export class RaiseToThirdPower {
   }
 }
 
-export class RaiseTenToPower {
+class RaiseTenToPower {
   execute(currentValue) {
     return 10 ** currentValue;
   }
@@ -145,10 +148,13 @@ export class RaiseTenToPower {
   }
 }
 
-export class GetFactorial {
+class GetFactorial {
   execute(currentValue) {
+    if (currentValue < 0) {
+      return 'Error';
+    }
     let result = 1;
-    for (let i = 1; i <= currentValue; i += 1) {
+    for (let i = 1; i <= +currentValue.toFixed(); i += 1) {
       result *= i;
     }
     return result;
@@ -163,12 +169,18 @@ export class GetFactorial {
   }
 }
 
-export class GetRoot {
+class GetRoot {
   constructor(rootValue) {
     this.rootValue = rootValue;
   }
 
   execute(currentValue) {
+    if (
+      this.rootValue === 0 ||
+      (this.rootValue % 2 === 0 && currentValue < 0)
+    ) {
+      return 'Error';
+    }
     if (currentValue < 0) {
       return -((-currentValue) ** (1 / this.rootValue));
     }
@@ -183,8 +195,11 @@ export class GetRoot {
   }
 }
 
-export class GetOnePartOfX {
+class GetOnePartOfX {
   execute(currentValue) {
+    if (currentValue === 0) {
+      return "Error";
+    }
     return 1 / currentValue;
   }
 
@@ -194,31 +209,58 @@ export class GetOnePartOfX {
 }
 
 /* memory commands */
-export class SaveToMemoryCommand {
+class SaveToMemoryCommand {
   constructor(currentValue) {
     this.memoriezedValue = currentValue;
   }
 
   execute(memory) {
-    memory.push(this.memoriezedValue);
+    if (Number(this.memoriezedValue)) {
+      memory.push(this.memoriezedValue);
+    }
   }
 }
 
-export class RemoveFromMemoryCommand {
+class RemoveFromMemoryCommand {
   execute(memory) {
     memory.pop();
   }
 }
 
-export class ClearMemoryCommand {
+class ClearMemoryCommand {
   execute(memory) {
     // eslint-disable-next-line no-param-reassign
     memory.length = 0;
   }
 }
 
-export class ReadFromMemoryCommand {
+class ReadFromMemoryCommand {
   execute(memory) {
+    if (memory.length === 0) {
+      return true
+    }
     return memory.at(-1);
   }
 }
+
+module.exports = {
+  AddCommand,
+  SubtractCommand,
+  MultiplyCommand,
+  DivideCommand,
+  EqualityCommand,
+  ChangeSignCommand,
+  PercentageCommand,
+  ClearPanel,
+  RaiseToPower,
+  RaiseToSecondPower,
+  RaiseToThirdPower,
+  RaiseTenToPower,
+  GetRoot,
+  GetFactorial,
+  GetOnePartOfX,
+  SaveToMemoryCommand,
+  ReadFromMemoryCommand,
+  ClearMemoryCommand,
+  RemoveFromMemoryCommand,
+};

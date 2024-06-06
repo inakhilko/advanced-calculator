@@ -24,8 +24,9 @@ class CalculatorModel {
   constructor() {
     this._currentValue = null;
     this.operationsHistory = [];
-    this.isPanelToRewrite = false;
     this.memory = [];
+    this.isPanelToRewrite = false;
+    this.memoryCommandResult = false
   }
 
   get currentValue() {
@@ -37,29 +38,62 @@ class CalculatorModel {
   }
 
   executeCommandWithTwoOperands(command) {
+    const commandResult = command.execute(this.currentValue);
+    if (typeof commandResult === 'string') {
+      this.currentValue = commandResult;
+      return;
+    }
     this.currentValue = +command.execute(this.currentValue).toFixed(12);
     this.operationsHistory.push(command);
   }
 
-  executeCommandWithOneOperand(command, currentValue) {
-    const result = +command.execute(currentValue).toFixed(12);
-    this.operationsHistory.push(command);
-    return result;
+  chooseCommandExecutorForCurrentOperation(
+    operator,
+    secondNumber,
+    lastNumber,
+    command
+  ) {
+    if (operator === '11' && secondNumber === lastNumber) {
+      return this.executeCommandWithTwoOperands(command);
+    }
+    if (operator === '11' || secondNumber === lastNumber) {
+      return +command.execute(lastNumber).toFixed(12);
+    }
+    return this.executeCommandWithTwoOperands(command);
   }
 
   executeMemoryCommand(command) {
     const memoryCommandResult = command.execute(this.memory);
     if (memoryCommandResult || memoryCommandResult === 0) {
+      this.isPanelToRewrite = true;
       return memoryCommandResult;
     }
-    return false;
+    return true;
+  }
+
+  chooseMemoryCommand(operator, lastNumber){
+    if (operator !== '30' && this.memory.length === 0) {
+      return true
+    }
+    switch (operator) {
+      case '30':
+        return this.executeMemoryCommand(new SaveToMemoryCommand(lastNumber));
+      case '29':
+        return this.executeMemoryCommand(new RemoveFromMemoryCommand());
+      case '19':
+        return this.executeMemoryCommand(new ClearMemoryCommand());
+      case '24':
+        return this.executeMemoryCommand(new ReadFromMemoryCommand());
+      default:
+        return true
+    }
   }
 
   undoLastCommand() {
     if (this.operationsHistory.length === 0) {
       return 0;
     }
-    this.currentValue = this.operationsHistory.pop().undo(this.currentValue);
+    this.currentValue = this.operationsHistory.pop().undo(this.currentValue).toFixed(12);
     return this.currentValue;
   }
 
@@ -69,90 +103,86 @@ class CalculatorModel {
     secondNumber,
     lastNumber
   ) {
-    if (secondNumber === lastNumber) {
-      switch (currentOperation) {
-        case '11':
-          this.clearPanel();
-          return this.executeCommandWithTwoOperands(new ClearPanel());
-        case '12':
-          return this.executeCommandWithOneOperand(
-            new ChangeSignCommand(),
-            lastNumber
-          );
-        case '21':
-          return this.executeCommandWithOneOperand(
-            new RaiseToSecondPower(),
-            lastNumber
-          );
-        case '23':
-          return this.executeCommandWithOneOperand(
-            new RaiseToThirdPower(),
-            lastNumber
-          );
-        case '28':
-          return this.executeCommandWithOneOperand(
-            new RaiseTenToPower(),
-            lastNumber
-          );
-        case '27':
-          return this.executeCommandWithOneOperand(
-            new GetFactorial(),
-            lastNumber
-          );
-        case '31':
-          return this.executeCommandWithOneOperand(
-            new GetOnePartOfX(),
-            lastNumber
-          );
-        case '20':
-          return this.executeCommandWithOneOperand(new GetRoot(2), lastNumber);
-        case '22':
-          return this.executeCommandWithOneOperand(new GetRoot(3), lastNumber);
-        default:
-          break;
-      }
-    }
     switch (currentOperation) {
+      case '30':
+      case '29':
+      case '19':
+      case '24':
+        this.memoryCommandResult = this.chooseMemoryCommand(currentOperation, lastNumber)
+        return false
       case '11':
         this.clearPanel();
-        return this.executeCommandWithOneOperand(new ClearPanel());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new ClearPanel()
+        );
 
       case '12':
-        return this.executeCommandWithTwoOperands(new ChangeSignCommand());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new ChangeSignCommand()
+        );
 
       case '21':
-        return this.executeCommandWithTwoOperands(new RaiseToSecondPower());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new RaiseToSecondPower()
+        );
       case '23':
-        return this.executeCommandWithTwoOperands(new RaiseToThirdPower());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new RaiseToThirdPower()
+        );
       case '28':
-        return this.executeCommandWithTwoOperands(new RaiseTenToPower());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new RaiseTenToPower()
+        );
 
       case '27':
-        return this.executeCommandWithTwoOperands(new GetFactorial());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new GetFactorial()
+        );
 
       case '31':
-        return this.executeCommandWithTwoOperands(new GetOnePartOfX());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new GetOnePartOfX()
+        );
 
       case '20':
-        return this.executeCommandWithTwoOperands(new GetRoot(2));
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new GetRoot(2)
+        );
       case '22':
-        return this.executeCommandWithTwoOperands(new GetRoot(3));
-
-      case '30':
-        this.executeMemoryCommand(new SaveToMemoryCommand(lastNumber));
-        return false;
-      case '29':
-        this.executeMemoryCommand(new RemoveFromMemoryCommand());
-        return false;
-      case '19':
-        this.executeMemoryCommand(new ClearMemoryCommand());
-        return false;
-      case '24':
-        return this.executeMemoryCommand(new ReadFromMemoryCommand());
+        return this.chooseCommandExecutorForCurrentOperation(
+          currentOperation,
+          secondNumber,
+          lastNumber,
+          new GetRoot(3)
+        );
       default:
         break;
     }
-    if (secondNumber) {
+    if (!Number.isNaN(secondNumber)) {
       switch (displayedOperation) {
         case '+':
           this.executeCommandWithTwoOperands(new AddCommand(secondNumber));
@@ -188,22 +218,21 @@ class CalculatorModel {
   }
 
   executeCurrentCommand(operation, panelValue) {
-    if (panelValue.split(' ').length <= 2) {
-      this.currentValue = Number(panelValue.split(' ')[0]);
+    if (panelValue.length <= 2) {
+      this.currentValue = Number(panelValue[0]);
     }
 
     const operationResult = this.chooseOperation(
-      panelValue.split(' ')[1],
+      panelValue[1],
       operation,
-      Number(panelValue.split(' ')[2]),
-      Number(panelValue.split(' ')[panelValue.split(' ').length - 1])
+      Number(panelValue[2]),
+      Number(panelValue[panelValue.length - 1])
     );
 
-    if (operationResult || operationResult === 0) {
+    if (operationResult) {
       this.isPanelToRewrite = true;
-      return operationResult;
     }
-    return false;
+    return operationResult;
   }
 
   clearPanel() {
