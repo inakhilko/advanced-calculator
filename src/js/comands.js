@@ -215,7 +215,7 @@ class SaveToMemoryCommand {
   }
 
   execute(memory) {
-    if (Number(this.memoriezedValue)) {
+    if (Number(this.memoriezedValue) || Number(this.memoriezedValue) === 0) {
       memory.push(this.memoriezedValue);
     }
   }
