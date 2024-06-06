@@ -78,6 +78,10 @@
 
     font-size: 26px;
 
+    & sup {
+      transition: .3s;
+    }
+
     &--side:last-child {
       border-radius: 0 0 15px;
     }
@@ -114,6 +118,10 @@
     &__button {
       color: #fff;
 
+      & sup {
+        color: #fff;
+      }
+
       &--side {
         background-color: #ffa500ff;
 
@@ -148,6 +156,10 @@
   .keypad {
     &__button {
       color: #000;
+
+      & sup {
+        color: #000;
+      }
 
       &--side {
         background-color: #87cefaff;
