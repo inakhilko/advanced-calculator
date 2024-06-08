@@ -16,18 +16,9 @@ class CalculatorController {
     ) {
       return;
     }
-    let isMemoryCommandDone= false;
-    switch (event.target.id) {
-      case '30':
-      case '29':
-      case '19':
-      case '24':
-        isMemoryCommandDone = this.model.chooseMemoryCommand(event.target.id, this.view.panelDisplayElement.innerHTML.split(' ').at(-1))
-        break
-      default:
-        break;
-    }
-    if (isMemoryCommandDone === true) {
+    const memoryCommandResult = this.model.chooseMemoryCommand(event.target.id, this.view.panelDisplayElement.innerHTML.split(' ').at(-1));
+
+    if (memoryCommandResult === true) {
       return;
     }
 
@@ -38,8 +29,8 @@ class CalculatorController {
       this.view.panelDisplayElement.innerHTML.split(' ')
     );
 
-    if (this.model.isPanelToRewrite) {
-      this.view.changeLastPanelNumber(newSecondNumber || isMemoryCommandDone);
+    if (this.model.isPanelToRewrite || typeof memoryCommandResult === "number") {
+      this.view.changeLastPanelNumber(newSecondNumber || memoryCommandResult);
       this.model.isPanelToRewrite = false;
       return;
     }
@@ -48,6 +39,7 @@ class CalculatorController {
       ? this.model.currentValue
       : 0;
     this.view.displayOperation(event.target);
+
     if(this.model.currentValue === "Error") {
       this.model.clearPanel()
     }

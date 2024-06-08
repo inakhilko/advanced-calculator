@@ -209,37 +209,51 @@ class GetOnePartOfX {
 }
 
 /* memory commands */
-class SaveToMemoryCommand {
-  constructor(currentValue) {
-    this.memoriezedValue = currentValue;
+class AddToMemoryCommand {
+  constructor(memory) {
+    this.memory = memory;
   }
 
-  execute(memory) {
-    if (Number(this.memoriezedValue) || Number(this.memoriezedValue) === 0) {
-      memory.push(this.memoriezedValue);
+  execute(addedValue) {
+    if (Number.isNaN(addedValue)) {
+      return this.memory
     }
+    if (this.memory === null) {
+      return addedValue;
+    }
+    return this.memory + addedValue;
   }
 }
 
-class RemoveFromMemoryCommand {
-  execute(memory) {
-    memory.pop();
+class SubtractFromMemoryCommand {
+  constructor(memory) {
+    this.memory = memory;
+  }
+
+  execute(subtractedValue) {
+    if (Number.isNaN(subtractedValue)) {
+      return this.memory
+    }
+    if (this.memory === null) {
+      return -subtractedValue;
+    }
+    return this.memory - subtractedValue
   }
 }
 
 class ClearMemoryCommand {
-  execute(memory) {
-    // eslint-disable-next-line no-param-reassign
-    memory.length = 0;
+  execute() {
+    return null
   }
 }
 
 class ReadFromMemoryCommand {
-  execute(memory) {
-    if (memory.length === 0) {
-      return true
-    }
-    return memory.at(-1);
+  constructor(memory) {
+    this.memory = memory;
+  }
+
+  execute() {
+    return this.memory
   }
 }
 
@@ -259,8 +273,8 @@ module.exports = {
   GetRoot,
   GetFactorial,
   GetOnePartOfX,
-  SaveToMemoryCommand,
+  AddToMemoryCommand,
   ReadFromMemoryCommand,
   ClearMemoryCommand,
-  RemoveFromMemoryCommand,
+  SubtractFromMemoryCommand,
 };

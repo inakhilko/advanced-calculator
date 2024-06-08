@@ -1,5 +1,5 @@
 import {
-  AddCommand,
+  AddCommand, AddToMemoryCommand,
   ChangeSignCommand,
   ClearMemoryCommand,
   ClearPanel,
@@ -15,18 +15,16 @@ import {
   RaiseToSecondPower,
   RaiseToThirdPower,
   ReadFromMemoryCommand,
-  RemoveFromMemoryCommand,
-  SaveToMemoryCommand,
-  SubtractCommand,
+  SubtractCommand, SubtractFromMemoryCommand,
 } from './comands';
 
 class CalculatorModel {
   constructor() {
     this._currentValue = null;
     this.operationsHistory = [];
-    this.memory = [];
+    this.memory = null;
     this.isPanelToRewrite = false;
-    this.memoryCommandResult = false
+    this.isMemoryOperationDone = false
   }
 
   get currentValue() {
@@ -62,30 +60,26 @@ class CalculatorModel {
     return this.executeCommandWithTwoOperands(command);
   }
 
-  executeMemoryCommand(command) {
-    const memoryCommandResult = command.execute(this.memory);
-    if (memoryCommandResult || memoryCommandResult === 0) {
-      this.isPanelToRewrite = true;
-      return memoryCommandResult;
-    }
-    return true;
+  executeMemoryCommand(command, lastNumber) {
+    this.memory = command.execute(Number(lastNumber));
+    return this.memory;
   }
 
   chooseMemoryCommand(operator, lastNumber){
-    if (operator !== '30' && this.memory.length === 0) {
-      return true
-    }
     switch (operator) {
       case '30':
-        return this.executeMemoryCommand(new SaveToMemoryCommand(lastNumber));
+        this.executeMemoryCommand(new AddToMemoryCommand(this.memory), lastNumber);
+        return true;
       case '29':
-        return this.executeMemoryCommand(new RemoveFromMemoryCommand());
+         this.executeMemoryCommand(new SubtractFromMemoryCommand(this.memory), lastNumber);
+        return true;
       case '19':
-        return this.executeMemoryCommand(new ClearMemoryCommand());
+        this.executeMemoryCommand(new ClearMemoryCommand(), lastNumber);
+        return true;
       case '24':
-        return this.executeMemoryCommand(new ReadFromMemoryCommand());
+        return this.executeMemoryCommand(new ReadFromMemoryCommand(this.memory), lastNumber) ?? true;
       default:
-        return true
+        return false;
     }
   }
 
@@ -104,12 +98,6 @@ class CalculatorModel {
     lastNumber
   ) {
     switch (currentOperation) {
-      case '30':
-      case '29':
-      case '19':
-      case '24':
-        this.memoryCommandResult = this.chooseMemoryCommand(currentOperation, lastNumber)
-        return false
       case '11':
         this.clearPanel();
         return this.chooseCommandExecutorForCurrentOperation(
