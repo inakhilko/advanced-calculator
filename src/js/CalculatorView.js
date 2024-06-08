@@ -118,6 +118,16 @@ class CalculatorView {
       return;
     }
     if (
+      this.panelDisplayElement.innerText.split(' ').at(-1).includes('.') &&
+      event.target.innerHTML === '.'
+    ) {
+      return;
+    }
+    if (!Number.isNaN(Number(this.panelDisplayElement.innerText.at(-1))) && this.panelDisplayElement.innerText.at(-1) === '.') {
+      this.panelDisplayElement.innerText = `${this.panelDisplayElement.innerText} 0${event.target.innerHTML}`;
+      return;
+    }
+    if (
       this.panelDisplayElement.innerText.at(-1) !== '.' &&
       Number.isNaN(Number(this.panelDisplayElement.innerText.at(-1)))
     ) {
